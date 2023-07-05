@@ -1,0 +1,42 @@
+<!-- card for each product -->
+<div class="card">
+	<div class="image">
+		<img src="<%= image %>" alt="product image" />
+	</div>
+	<div class="details">
+		<p class="name"><%= name %></p>
+		<p class="price">Rs. <%= price %></p>
+
+		<% if (login) { %>
+		<button class="btn">
+			<a href="/addtocart/<%= id %>">Add to Cart</a>
+		</button>
+		<% } else { %>
+		<button class="btn">
+			<a href="/login">Add to Cart</a>
+		</button>
+		<% } %>
+	</div>
+</div>
+
+<!-- Schema for product:
+{
+    name: String,
+    price: Number,
+    image: String,
+    description: String,
+    category: String,
+    quantity: Number,
+    seller: String,
+    sellerId: String,
+    date: Date,
+    rating: Number,
+    reviews: [
+        {
+            name: String,
+            review: String,
+            rating: Number,
+            date: Date,
+        },
+    ],
+} -->

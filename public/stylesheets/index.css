@@ -4,7 +4,9 @@
 	background-color: rgb(255, 191, 0);
 	border: none;
 	border-radius: 3px;
+	margin: 0.5rem;
 }
 .btn a {
 	text-decoration: none;
 }
+

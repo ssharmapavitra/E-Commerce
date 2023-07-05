@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Products | Maayaa Baazaar</title>
+		<link rel="stylesheet" href="/stylesheets/product.css" />
+	</head>
+	<body>
+		<header>
+			<%-include ("./components/headers/navbar",{login : login, name:name}) %>
+		</header>
+
+		<div id="popup" class="popup"></div>
+		<div class="card_container" id="product-container"></div>
+
+		<button onclick="loadMore()">Load More</button>
+		<script src="/scripts/product.js"></script>
+	</body>
+</html>

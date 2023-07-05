@@ -20,7 +20,8 @@ app.use(
 app.set("view engine", "ejs");
 
 app.get("/", (req, res) => {
-	res.render("index", { name: "", login: false });
+	res.redirect("/home");
+	// res.render("index", { name: "", login: false });
 });
 
 //Route Login
@@ -85,6 +86,28 @@ app
 
 app.get("/home", checkAuth, (req, res) => {
 	res.render("index", { name: req.session.name, login: true });
+});
+
+app.get("/logout", (req, res) => {
+	req.session.is_logged_in = false;
+	req.session.name = "";
+	res.redirect("/");
+});
+
+app.route("/products").get((req, res) => {
+	res.render("products", { name: req.session.name, login: true });
+});
+
+app.get("/getProducts", (req, res) => {
+	// console.log("getProducts");
+	fs.readFile("./product.txt", "utf-8", (err, data) => {
+		if (err) {
+			console.log(err);
+			res.sendStatus(404);
+			return;
+		}
+		res.send(data);
+	});
 });
 
 app.get("*", (req, res) => {

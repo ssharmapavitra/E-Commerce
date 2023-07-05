@@ -5,3 +5,4 @@ uploads/*
 
 # ignore all txt files in the every directory
 *.txt
+public/img/productImg/*
