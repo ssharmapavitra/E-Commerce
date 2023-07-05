@@ -1,0 +1,10 @@
+/* Utility Classes */
+.btn {
+	padding: 5px;
+	background-color: rgb(255, 191, 0);
+	border: none;
+	border-radius: 3px;
+}
+.btn a {
+	text-decoration: none;
+}

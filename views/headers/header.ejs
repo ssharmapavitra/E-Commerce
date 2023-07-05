@@ -1,0 +1,28 @@
+<style>
+	* {
+		margin: 0px;
+		box-sizing: border-box;
+	}
+	.header {
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+		flex-wrap: wrap;
+		padding: 3px;
+		background-color: antiquewhite;
+	}
+</style>
+<div class="header">
+	<p class="title">Maayaa Baazaar</p>
+
+	<% if (login) { %> Hello <%= name %> <% } else { %>
+	<div class="buttonBar">
+		<button class="btn">
+			<a href="/login">Login</a>
+		</button>
+		<button class="btn">
+			<a href="/signup">SignUp</a>
+		</button>
+	</div>
+	<% } %>
+</div>
