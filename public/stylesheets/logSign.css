@@ -28,6 +28,10 @@ input {
 	color: red;
 	text-align: center;
 }
+.alter {
+	color: rgb(122, 122, 113);
+	text-align: center;
+}
 .btn {
 	padding: 5px;
 	background-color: rgb(255, 191, 0);
