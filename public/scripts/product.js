@@ -7,7 +7,7 @@ getProducts();
 //AJAX request to get products
 function getProducts() {
 	let request = new XMLHttpRequest();
-	request.open("GET", "/getProducts");
+	request.open("GET", "/getProducts/:size");
 	request.send();
 	request.onload = () => {
 		products = JSON.parse(request.responseText);
@@ -18,7 +18,7 @@ function getProducts() {
 //Adding n number of products to list
 function addProducts(size) {
 	let productContainer = document.getElementById("product-container");
-	productContainer.innerHTML = "";
+	// productContainer.innerHTML = "";
 	let view_products = products.slice(0, size);
 	view_products.forEach((product) => {
 		let div = document.createElement("div");

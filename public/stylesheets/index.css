@@ -5,8 +5,8 @@
 	border: none;
 	border-radius: 3px;
 	margin: 0.5rem;
+	cursor: pointer;
 }
 .btn a {
 	text-decoration: none;
 }
-

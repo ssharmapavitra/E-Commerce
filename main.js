@@ -50,6 +50,8 @@ app
 				//set session
 				req.session.is_logged_in = true;
 				req.session.name = data[obj.username].name;
+				req.session.username = data[obj.username].username;
+				console.log(req.session);
 				res.redirect("/home");
 				return;
 			} else {
@@ -90,15 +92,20 @@ app
 						res.render("signup", { error: "Something Went Wrong" });
 						return;
 					}
-					sendEmail(obj.username, obj.mailToken, obj.name, (err, data) => {
-						if (err) {
-							console.log(err);
-							res.render("signup", { error: "Something Went Wrong" });
-							return;
+					sendEmail.sendSignUpMail(
+						obj.username,
+						obj.mailToken,
+						obj.name,
+						(err, data) => {
+							if (err) {
+								console.log(err);
+								res.render("signup", { error: "Something Went Wrong" });
+								return;
+							}
+							console.log(data);
+							res.redirect("/login");
 						}
-						console.log(data);
-						res.redirect("/login");
-					});
+					);
 				});
 			}
 		});
@@ -117,6 +124,9 @@ app.get("/verifyemail/:username/:token", (req, res) => {
 		if (data.length > 0 && data[0] === "{" && data[data.length - 1] === "}") {
 			users = JSON.parse(data);
 		} else users = {};
+		//if username is already verified
+		if (users[username].isVerified) {
+		}
 		if (username in users && users[username].mailToken == token) {
 			users[username].isVerified = true;
 			fs.writeFile("./db.txt", JSON.stringify(users), (err) => {
@@ -132,6 +142,129 @@ app.get("/verifyemail/:username/:token", (req, res) => {
 	});
 });
 
+//Reset Password
+app
+	.route("/newpassword")
+	.get(checkAuth, (req, res) => {
+		res.render("resetpassword", { error: "" });
+	})
+	.post((req, res) => {
+		let obj = req.body;
+		obj.username = req.session.username;
+		fs.readFile("db.txt", "utf-8", (err, data) => {
+			if (err) {
+				res.render("resetpassword", { error: "Users not Found" });
+				return;
+			}
+			let users = [];
+			if (data.length > 0 && data[0] === "{" && data[data.length - 1] === "}") {
+				users = JSON.parse(data);
+			} else users = {};
+			if (obj.username in users) {
+				//write new password to db
+				users[obj.username].password = obj.password;
+				fs.writeFile("./db.txt", JSON.stringify(users), (err) => {
+					if (err) {
+						res.render("signup", { error: "Something Went Wrong" });
+						return;
+					}
+					//send mail
+					sendEmail.sendPasswordChangedMail(
+						obj.username,
+						users[obj.username].mailToken,
+						users[obj.username].name,
+						(err, data) => {
+							if (err) {
+								console.log(err);
+								res.render("resetpassword", { error: "Something Went Wrong" });
+								return;
+							}
+							// console.log(data);
+							res.redirect("/login");
+						}
+					);
+				});
+			} else {
+				res.render("Login", { error: "User Not found" });
+			}
+		});
+	});
+
+//Forgot Password
+app
+	.route("/forgotpassword")
+	.get((req, res) => {
+		res.render("forgotpassword", { error: "" });
+	})
+	.post((req, res) => {
+		let obj = req.body;
+		fs.readFile("./db.txt", "utf-8", (err, data) => {
+			if (err) {
+				res.render("forgotpassword", { error: "Users not found" });
+				return;
+			}
+			data = JSON.parse(data);
+			if (obj.username in data) {
+				//check if email is verified
+				if (!data[obj.username].isVerified) {
+					res.render("forgotpassword", { error: "Email not verified" });
+					return;
+				}
+				//set forgot password token
+				data[obj.username].forgotPasswordToken = Date.now();
+				fs.writeFile("./db.txt", JSON.stringify(data), (err) => {
+					if (err) {
+						res.render("forgotpassword", { error: "Something Went Wrong" });
+						return;
+					}
+					//send mail
+					sendEmail.sendForgotPasswordMail(
+						obj.username,
+						data[obj.username].forgotPasswordToken,
+						data[obj.username].name,
+						(err, message) => {
+							if (err) {
+								console.log(err);
+								res.render("forgotpassword", { error: "Something Went Wrong" });
+								return;
+							}
+							console.log(message);
+							res.redirect("/login");
+						}
+					);
+				});
+			} else {
+				res.render("forgotpassword", { error: "User Not found" });
+			}
+		});
+	});
+
+app.get("/resetpassword/:username/:token", (req, res) => {
+	let username = req.params.username;
+	let token = req.params.token;
+	fs.readFile("db.txt", "utf-8", (err, data) => {
+		if (err) {
+			res.render("login", { error: "Users not Found" });
+			return;
+		}
+		let users = {};
+		if (data.length > 0 && data[0] === "{" && data[data.length - 1] === "}") {
+			users = JSON.parse(data);
+		}
+
+		if (username in users) {
+			//Check Token
+			if (users[username].forgotPasswordToken == token) {
+				req.session.username = username;
+				res.render("resetpassword", { error: "" });
+			}
+		} else {
+			res.render("Login", { error: "User Not found" });
+		}
+	});
+});
+
+///
 app.get("/home", checkAuth, (req, res) => {
 	res.render("index", { name: req.session.name, login: true });
 });
@@ -165,3 +298,37 @@ app.get("*", (req, res) => {
 app.listen(port, () => {
 	console.log("Listening at port : " + port);
 });
+
+//Function to read data from file
+function readData(err, callback) {
+	fs.readFile("db.txt", "utf-8", (err, data) => {
+		if (err) {
+			err();
+			return;
+		}
+		let users = {};
+		if (data.length > 0 && data[0] === "{" && data[data.length - 1] === "}") {
+			users = JSON.parse(data);
+		}
+		callback(users);
+	});
+}
+
+//Function to write data to file
+function writeData(users, callback) {
+	fs.writeFile("./db.txt", JSON.stringify(users), (err) => {
+		if (err) {
+			callback(err);
+			return;
+		}
+		callback();
+	});
+}
+
+//Session Schema
+// {
+// 	"session": {
+//	 	is_logged_in: true,
+//	 	name: "Rahul",
+// 	},
+// 		}
