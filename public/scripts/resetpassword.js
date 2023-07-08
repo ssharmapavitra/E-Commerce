@@ -2,7 +2,6 @@ const password1 = document.getElementById("password1");
 const password2 = document.getElementById("password2");
 const form = document.querySelector("form");
 
-
 //Check if passwords match before submitting
 form.addEventListener("submit", (e) => {
 	if (password1.value !== password2.value) {

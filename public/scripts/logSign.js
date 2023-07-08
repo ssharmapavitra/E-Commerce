@@ -3,7 +3,7 @@ const password = document.getElementById("password");
 
 //Check if password is in correct format before submitting
 form.addEventListener("submit", (e) => {
-	if (checkPassword(password.value)) {
+	if (!checkPassword(password.value)) {
 		const error = document.getElementById("error");
 		error.innerHTML = "Password does not meet the requirements";
 		e.preventDefault();

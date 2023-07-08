@@ -1,30 +1,29 @@
 //AJAX request to get products
-let products = [];
-let size = 5;
+let indexLoad = 1;
 
-getProducts();
+function onLoad() {
+	getProducts();
+}
 
 //AJAX request to get products
 function getProducts() {
 	let request = new XMLHttpRequest();
-	request.open("GET", "/getProducts/:size");
+	request.open("GET", `/getProducts/${indexLoad}`);
 	request.send();
 	request.onload = () => {
-		products = JSON.parse(request.responseText);
-		addProducts(size);
+		let products = JSON.parse(request.responseText);
+		addProducts(products);
 	};
 }
 
 //Adding n number of products to list
-function addProducts(size) {
+function addProducts(products) {
 	let productContainer = document.getElementById("product-container");
-	// productContainer.innerHTML = "";
-	let view_products = products.slice(0, size);
-	view_products.forEach((product) => {
+	products.forEach((product) => {
 		let div = document.createElement("div");
 		div.classList.add("product");
 		div.innerHTML = `
-        <img src="${product.image}" alt="product" />
+        <img src="${product.thumbnailPath}" alt="product" />
         <div class="product-info">
             <h3>${product.name}</h3>
 			<button onclick="viewProduct('${product.id}')">View</button>
@@ -72,6 +71,6 @@ function closePopup() {
 
 //Load more
 function loadMore() {
-	size += 5;
-	addProducts(size);
+	indexLoad++;
+	getProducts();
 }

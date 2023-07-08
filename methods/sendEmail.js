@@ -1,8 +1,10 @@
 "use strict";
 const nodemailer = require("nodemailer");
+const dotenv = require("dotenv");
+dotenv.config();
 
-let user = "xxxxxxxxxxxxxxxxxxx";
-let pass = "yyyyyyyyyyyyyyyyyyyyyyy";
+let user = process.env.EMAIL_USERNAME;
+let pass = process.env.EMAIL_PASSWORD;
 
 const transporter = nodemailer.createTransport({
 	host: "smtp.gmail.com",
@@ -14,6 +16,7 @@ const transporter = nodemailer.createTransport({
 	},
 });
 
+//Sign Up Mail
 function sendSignUpMail(email, token, name, callback) {
 	let text = ``;
 	let subject = "Just one more Step | Maayaa Baazaar";
@@ -23,33 +26,35 @@ function sendSignUpMail(email, token, name, callback) {
 		<a href="http://localhost:3000/verifyemail/${email}/${token}">Click Here</a>
 	</div>
 	<div>Thank You.</div>`;
-	sendMail(email, token, name, callback, text, subject, html);
+	sendMail(email, callback, text, subject, html);
 }
 
-function sendForgotPasswordMail(email, token, name, callback) {
+//Forgot Password Mail
+function sendForgotPasswordMail(email, token, callback) {
 	let text = ``;
 	let subject = "Reset Password | Maayaa Baazaar";
-	let html = `<h3>Hello ${name},</h3>
+	let html = `<h3>Hello User,</h3>
 	<div>Plase Reset Your Password By Clicking On The Link Below.</div>
 	<div>
 		<a href="http://localhost:3000/resetpassword/${email}/${token}">Click Here</a>
 	</div>
 	<div>Thank You.</div>`;
-	sendMail(email, token, name, callback, text, subject, html);
+	sendMail(email, callback, text, subject, html);
 }
 
-function sendPasswordChangedMail(email, token, name, callback) {
+//Password Changed Mail
+function sendPasswordChangedMail(email, callback) {
 	let text = ``;
 	let subject = "Password Changed | Maayaa Baazaar";
-	let html = `<h3>Hello ${name},</h3>
+	let html = `<h3>Hello,</h3>
 	<div>Your Password Has Been Changed Successfully.</div>
 	<div>If You Have Not Changed Your Password, Please Contact Us.</div>
 	<div>Thank You.</div>`;
-	sendMail(email, token, name, callback, text, subject, html);
+	sendMail(email, callback, text, subject, html);
 }
 
 // async..await is not allowed in global scope, must use a wrapper
-async function sendMail(email, token, name, callback, text, subject, html) {
+async function sendMail(email, callback, text, subject, html) {
 	try {
 		// send mail with defined transport object
 		const info = await transporter.sendMail({

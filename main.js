@@ -4,6 +4,8 @@ const fs = require("fs");
 const multer = require("multer");
 const checkAuth = require("./middleware/checkAuth");
 const sendEmail = require("./methods/sendEmail");
+const db = require("./methods/database");
+const prodb = require("./methods/productDatabase");
 
 const app = express();
 const port = 3000;
@@ -32,114 +34,109 @@ app
 	.get((req, res) => {
 		res.render("login", { error: "" });
 	})
-	.post((req, res) => {
+	.post(async (req, res) => {
 		let obj = req.body;
-		fs.readFile("./db.txt", "utf-8", (err, data) => {
-			if (err) {
-				res.render("login", { error: "Users not found" });
-				return;
-			}
-			data = JSON.parse(data);
-			if (obj.username in data && data[obj.username].password == obj.password) {
-				//check if email is verified
-				if (!data[obj.username].isVerified) {
-					res.render("login", { error: "Email not verified" });
-					return;
-				}
+		let user = await db.getUser(obj.username);
+		console.log(user);
+		//check if user exist
+		if (!user) {
+			res.render("login", { error: "User not found" });
+			return;
+		}
+		//check if password is correct
+		if (user.password != obj.password) {
+			res.render("login", { error: "Invalid Credentials" });
+			return;
+		}
+		//check if email is verified
+		if (!user.is_verified) {
+			res.render("login", { error: "Email not verified" });
+			return;
+		}
 
-				//set session
-				req.session.is_logged_in = true;
-				req.session.name = data[obj.username].name;
-				req.session.username = data[obj.username].username;
-				console.log(req.session);
-				res.redirect("/home");
-				return;
-			} else {
-				res.render("login", { error: "Invalid Credentials" });
-			}
-		});
+		//set session
+		req.session.is_logged_in = true;
+		req.session.name = user.name;
+		req.session.username = user.username;
+		console.log(req.session);
+		res.redirect("/home");
+		return;
 	});
 
 //Route SignUp
 app
 	.route("/signup")
 	.get((req, res) => {
-		res.render("signup", { error: "" });
+		if (req.session.is_logged_in) res.redirect("/home");
+		else res.render("signup", { error: "" });
 	})
-	.post((req, res) => {
+	.post(async (req, res) => {
 		let obj = req.body;
 		//Add Token
-		obj.mailToken = Date.now(); //Change this to uuid or something else
-		obj.isVerified = false;
-		fs.readFile("db.txt", "utf-8", (err, data) => {
-			if (err) {
-				res.render("signup", { error: "Users not Found" });
-				return;
-			}
+		obj.token = Date.now(); //Change this to uuid or something else
+		obj.is_verified = false;
 
-			let users = [];
-			if (data.length > 0 && data[0] === "{" && data[data.length - 1] === "}") {
-				users = JSON.parse(data);
-			} else users = {};
+		//check if user exist
+		if (await db.getUser(obj.username)) {
+			res.render("signup", { error: "Username already exist" });
+			return;
+		}
 
-			if (obj.username in users) {
-				res.render("signup", { error: "Username already exist" });
-				return;
-			} else {
-				users[obj.username] = obj;
-				fs.writeFile("./db.txt", JSON.stringify(users), (err) => {
+		//set user
+		try {
+			await db.setUser(obj);
+			sendEmail.sendSignUpMail(
+				obj.username,
+				obj.token,
+				obj.name,
+				(err, data) => {
 					if (err) {
 						res.render("signup", { error: "Something Went Wrong" });
 						return;
 					}
-					sendEmail.sendSignUpMail(
-						obj.username,
-						obj.mailToken,
-						obj.name,
-						(err, data) => {
-							if (err) {
-								console.log(err);
-								res.render("signup", { error: "Something Went Wrong" });
-								return;
-							}
-							console.log(data);
-							res.redirect("/login");
-						}
-					);
-				});
-			}
-		});
+					res.render("signup", { error: "Check your mail" });
+					return;
+				}
+			);
+		} catch (err) {
+			console.log(err);
+			res.render("signup", { error: "Something Went Wrong" });
+			return;
+		}
 	});
 
 //Route Verify
-app.get("/verifyemail/:username/:token", (req, res) => {
+app.get("/verifyemail/:username/:token", async (req, res) => {
 	let username = req.params.username;
 	let token = req.params.token;
-	fs.readFile("db.txt", "utf-8", (err, data) => {
-		if (err) {
-			res.render("signup", { error: "Users not Found" });
-			return;
-		}
-		let users = [];
-		if (data.length > 0 && data[0] === "{" && data[data.length - 1] === "}") {
-			users = JSON.parse(data);
-		} else users = {};
-		//if username is already verified
-		if (users[username].isVerified) {
-		}
-		if (username in users && users[username].mailToken == token) {
-			users[username].isVerified = true;
-			fs.writeFile("./db.txt", JSON.stringify(users), (err) => {
-				if (err) {
-					res.render("signup", { error: "Something Went Wrong" });
-					return;
-				}
-				res.redirect("/login");
-			});
-		} else {
-			res.render("signup", { error: "Invalid Token" });
-		}
-	});
+
+	//get user
+	let user = await db.getUser(username);
+	if (!user) {
+		res.render("signup", { error: "User not found" });
+		return;
+	}
+	//check if user is already verified
+	if (user.is_verified || user.token == null) {
+		res.render("signup", { error: "User already verified" });
+		return;
+	}
+	//check if token is correct
+	if (user.token != token) {
+		res.render("signup", { error: "Invalid Token" });
+		return;
+	}
+
+	//verify user
+	try {
+		await db.verifyUser(username);
+		res.redirect("/login");
+		return;
+	} catch (err) {
+		console.log(err);
+		res.render("signup", { error: "Something Went Wrong" });
+		return;
+	}
 });
 
 //Reset Password
@@ -151,43 +148,30 @@ app
 	.post((req, res) => {
 		let obj = req.body;
 		obj.username = req.session.username;
-		fs.readFile("db.txt", "utf-8", (err, data) => {
-			if (err) {
-				res.render("resetpassword", { error: "Users not Found" });
-				return;
-			}
-			let users = [];
-			if (data.length > 0 && data[0] === "{" && data[data.length - 1] === "}") {
-				users = JSON.parse(data);
-			} else users = {};
-			if (obj.username in users) {
-				//write new password to db
-				users[obj.username].password = obj.password;
-				fs.writeFile("./db.txt", JSON.stringify(users), (err) => {
-					if (err) {
-						res.render("signup", { error: "Something Went Wrong" });
-						return;
-					}
-					//send mail
-					sendEmail.sendPasswordChangedMail(
-						obj.username,
-						users[obj.username].mailToken,
-						users[obj.username].name,
-						(err, data) => {
-							if (err) {
-								console.log(err);
-								res.render("resetpassword", { error: "Something Went Wrong" });
-								return;
-							}
-							// console.log(data);
-							res.redirect("/login");
-						}
-					);
-				});
-			} else {
-				res.render("Login", { error: "User Not found" });
-			}
-		});
+		if (!obj.username) {
+			res.render("signup", { error: "User not found" });
+			return;
+		}
+		//set new password
+		try {
+			db.setPassword(obj.username, obj.password);
+			//send mail
+			sendEmail.sendPasswordChangedMail(obj.username, (err, data) => {
+				if (err) {
+					console.log(err);
+					res.render("resetpassword", { error: "Something Went Wrong" });
+					return;
+				}
+				res.redirect("/login");
+			});
+
+			res.redirect("/login");
+			return;
+		} catch (err) {
+			console.log(err);
+			res.render("login", { error: "Something Went Wrong" });
+			return;
+		}
 	});
 
 //Forgot Password
@@ -196,75 +180,65 @@ app
 	.get((req, res) => {
 		res.render("forgotpassword", { error: "" });
 	})
-	.post((req, res) => {
+	.post(async (req, res) => {
 		let obj = req.body;
-		fs.readFile("./db.txt", "utf-8", (err, data) => {
-			if (err) {
-				res.render("forgotpassword", { error: "Users not found" });
-				return;
-			}
-			data = JSON.parse(data);
-			if (obj.username in data) {
-				//check if email is verified
-				if (!data[obj.username].isVerified) {
-					res.render("forgotpassword", { error: "Email not verified" });
-					return;
-				}
-				//set forgot password token
-				data[obj.username].forgotPasswordToken = Date.now();
-				fs.writeFile("./db.txt", JSON.stringify(data), (err) => {
-					if (err) {
-						res.render("forgotpassword", { error: "Something Went Wrong" });
-						return;
-					}
-					//send mail
-					sendEmail.sendForgotPasswordMail(
-						obj.username,
-						data[obj.username].forgotPasswordToken,
-						data[obj.username].name,
-						(err, message) => {
-							if (err) {
-								console.log(err);
-								res.render("forgotpassword", { error: "Something Went Wrong" });
-								return;
-							}
-							console.log(message);
-							res.redirect("/login");
-						}
-					);
-				});
-			} else {
-				res.render("forgotpassword", { error: "User Not found" });
-			}
-		});
-	});
-
-app.get("/resetpassword/:username/:token", (req, res) => {
-	let username = req.params.username;
-	let token = req.params.token;
-	fs.readFile("db.txt", "utf-8", (err, data) => {
-		if (err) {
-			res.render("login", { error: "Users not Found" });
+		//check if user exist
+		let user = await db.getUser(obj.username);
+		if (!user) {
+			res.render("forgotpassword", { error: "User not found" });
 			return;
 		}
-		let users = {};
-		if (data.length > 0 && data[0] === "{" && data[data.length - 1] === "}") {
-			users = JSON.parse(data);
+		//check if email is verified
+		if (!user.is_verified) {
+			res.render("forgotpassword", { error: "Email not verified" });
+			return;
 		}
-
-		if (username in users) {
-			//Check Token
-			if (users[username].forgotPasswordToken == token) {
-				req.session.username = username;
-				res.render("resetpassword", { error: "" });
-			}
-		} else {
-			res.render("Login", { error: "User Not found" });
+		//set forgot password token
+		try {
+			let token = Date.now(); //Change this to uuid or something else
+			await db.setToken(obj.username, token);
+			//send mail
+			sendEmail.sendForgotPasswordMail(obj.username, token, (err, data) => {
+				if (err) {
+					console.log(err);
+					res.render("forgotpassword", { error: "Something Went Wrong" });
+					return;
+				}
+				res.render("forgotpassword", { error: "Check your mail" });
+				return;
+			});
+		} catch (err) {
+			console.log(err);
+			res.render("forgotpassword", { error: "Something Went Wrong" });
+			return;
 		}
 	});
+
+app.get("/resetpassword/:username/:token", async (req, res) => {
+	let username = req.params.username;
+	let token = req.params.token;
+
+	//get user
+	let user = await db.getUser(username);
+	if (!user) {
+		res.render("login", { error: "User not found" });
+		return;
+	}
+	//check token
+	if (user.token != token) {
+		res.render("login", { error: "Invalid Token" });
+		return;
+	}
+
+	//set session
+	req.session.username = username;
+
+	//verify user
+	await db.verifyUser(username);
+
+	res.render("resetpassword", { error: "" });
 });
 
-///
 app.get("/home", checkAuth, (req, res) => {
 	res.render("index", { name: req.session.name, login: true });
 });
@@ -279,16 +253,10 @@ app.route("/products").get((req, res) => {
 	res.render("products", { name: req.session.name, login: true });
 });
 
-app.get("/getProducts", (req, res) => {
-	// console.log("getProducts");
-	fs.readFile("./product.txt", "utf-8", (err, data) => {
-		if (err) {
-			console.log(err);
-			res.sendStatus(404);
-			return;
-		}
-		res.send(data);
-	});
+app.get("/getProducts/:indexLoad", async (req, res) => {
+	console.log(req.params.indexLoad);
+	let data = await prodb.getProductsFromDatabase(req.params.indexLoad);
+	res.send(data);
 });
 
 app.get("*", (req, res) => {
@@ -299,31 +267,9 @@ app.listen(port, () => {
 	console.log("Listening at port : " + port);
 });
 
-//Function to read data from file
-function readData(err, callback) {
-	fs.readFile("db.txt", "utf-8", (err, data) => {
-		if (err) {
-			err();
-			return;
-		}
-		let users = {};
-		if (data.length > 0 && data[0] === "{" && data[data.length - 1] === "}") {
-			users = JSON.parse(data);
-		}
-		callback(users);
-	});
-}
+/*
 
-//Function to write data to file
-function writeData(users, callback) {
-	fs.writeFile("./db.txt", JSON.stringify(users), (err) => {
-		if (err) {
-			callback(err);
-			return;
-		}
-		callback();
-	});
-}
+
 
 //Session Schema
 // {
@@ -332,3 +278,6 @@ function writeData(users, callback) {
 //	 	name: "Rahul",
 // 	},
 // 		}
+
+
+*/
