@@ -10,6 +10,10 @@ const prodb = require("./methods/productDatabase");
 const app = express();
 const port = 3000;
 
+//View Engine
+app.set("view engine", "ejs");
+
+//Middleware
 app.use(express.static("public"));
 app.use(express.urlencoded({ extended: true }));
 app.use(
@@ -20,7 +24,8 @@ app.use(
 		// cookie: { secure: true },
 	})
 );
-app.set("view engine", "ejs");
+
+/* ---------------------------------Routing ------------------------------ */
 
 app.get("/", (req, res) => {
 	// res.redirect("/home");
@@ -214,6 +219,7 @@ app
 		}
 	});
 
+//Reset Password
 app.get("/resetpassword/:username/:token", async (req, res) => {
 	let username = req.params.username;
 	let token = req.params.token;
@@ -239,20 +245,24 @@ app.get("/resetpassword/:username/:token", async (req, res) => {
 	res.render("resetpassword", { error: "" });
 });
 
+//Home
 app.get("/home", checkAuth, (req, res) => {
 	res.render("index", { name: req.session.name, login: true });
 });
 
+//Logout
 app.get("/logout", (req, res) => {
 	req.session.is_logged_in = false;
 	req.session.name = "";
 	res.redirect("/");
 });
 
+//Products
 app.route("/products").get((req, res) => {
 	res.render("products", { name: req.session.name, login: true });
 });
 
+//AJAX request to get Products
 app.get("/getProducts/:indexLoad", async (req, res) => {
 	console.log(req.params.indexLoad);
 	let data = await prodb.getProductsFromDatabase(req.params.indexLoad);
@@ -269,7 +279,7 @@ app.listen(port, () => {
 
 /*
 
-
+---------------------------------------------------------------------------------------------
 
 //Session Schema
 // {
