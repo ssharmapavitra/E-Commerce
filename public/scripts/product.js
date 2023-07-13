@@ -1,5 +1,6 @@
 //AJAX request to get products
 let indexLoad = 1;
+const products_list = [];
 
 function onLoad() {
 	getProducts();
@@ -12,6 +13,7 @@ function getProducts() {
 	request.send();
 	request.onload = () => {
 		let products = JSON.parse(request.responseText);
+		products_list.push(...products);
 		addProducts(products);
 	};
 }
@@ -23,7 +25,7 @@ function addProducts(products) {
 		let div = document.createElement("div");
 		div.classList.add("product");
 		div.innerHTML = `
-        <img src="${product.thumbnailPath}" alt="product" />
+        <img class="product-image" src="${product.thumbnailPath}" alt="product" />
         <div class="product-info">
             <h3>${product.name}</h3>
 			<button onclick="viewProduct('${product.id}')">View</button>
@@ -37,7 +39,7 @@ function addProducts(products) {
 //View product open popup
 function viewProduct(id) {
 	console.log(id);
-	let product = products.find((product) => product.id == id);
+	let product = products_list.find((product) => product.id == id);
 	console.log(product);
 	let popup = document.getElementById("popup");
 	popup.style.display = "flex";
@@ -50,7 +52,7 @@ function viewProduct(id) {
 			<button onclick="closePopup()">X</button>
 		</div>
 		<div class="popup-body">
-			<img src="${product.image}" alt="product" />
+			<img class="product-image" src="${product.imagePath}" alt="product" />
 			<div class="popup-info">
 				<p>${product.description}</p>
 				<p>Price: ${product.price}</p>
@@ -72,5 +74,10 @@ function closePopup() {
 //Load more
 function loadMore() {
 	indexLoad++;
+	if (indexLoad > 5) {
+		let loadMoreBtn = document.getElementById("load-more");
+		loadMoreBtn.style.display = "none";
+	}
+
 	getProducts();
 }

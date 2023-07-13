@@ -42,7 +42,7 @@ app
 	.post(async (req, res) => {
 		let obj = req.body;
 		let user = await db.getUser(obj.username);
-		console.log(user);
+		// console.log(user);
 		//check if user exist
 		if (!user) {
 			res.render("login", { error: "User not found" });
@@ -63,7 +63,7 @@ app
 		req.session.is_logged_in = true;
 		req.session.name = user.name;
 		req.session.username = user.username;
-		console.log(req.session);
+		// console.log(req.session);
 		res.redirect("/home");
 		return;
 	});
@@ -264,7 +264,6 @@ app.route("/products").get((req, res) => {
 
 //AJAX request to get Products
 app.get("/getProducts/:indexLoad", async (req, res) => {
-	console.log(req.params.indexLoad);
 	let data = await prodb.getProductsFromDatabase(req.params.indexLoad);
 	res.send(data);
 });

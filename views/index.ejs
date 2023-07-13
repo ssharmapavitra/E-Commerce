@@ -11,8 +11,10 @@
 			<header>
 				<%-include ("./components/headers/navbar",{login : login, name:name}) %>
 			</header>
+
+			<div class="display">
+				<%-include ("./products",{login : login, name:name}) %>
+			</div>
 		</div>
 	</body>
 </html>
-
-

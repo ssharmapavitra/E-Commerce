@@ -7,14 +7,10 @@
 		<link rel="stylesheet" href="/stylesheets/product.css" />
 	</head>
 	<body onload="onLoad()">
-		<header>
-			<%-include ("./components/headers/navbar",{login : login, name : name}) %>
-		</header>
-
 		<div id="popup" class="popup"></div>
 		<div class="card_container" id="product-container"></div>
 
-		<button onclick="loadMore()">Load More</button>
+		<button id="load-more" onclick="loadMore()">Load More</button>
 		<script src="/scripts/product.js"></script>
 	</body>
 </html>
