@@ -86,17 +86,21 @@ function loadMore() {
 
 //Add product to cart
 function addToCart(id) {
-	console.log(id);
+	if (cartId.length == 0) {
+		//redirect to login
+		window.location.href = "/login";
+		return;	
+	}
 	let request = new XMLHttpRequest();
-	console.log(`/addToCart/${id}/${cartId}}`);
-	request.open("GET", `/addToCart/${id}/${cartId}}`);
+	console.log(`/addToCart/${id}/${cartId}`);
+	request.open("GET", `/addToCart/${id}/${cartId}`);
 	request.send();
 	request.addEventListener("load", () => {
 		//Change button text to added and quantity to 1
 		let data = JSON.parse(request.responseText);
-		let quantity = data.quantity;
+		console.log(data);
 		let button = document.getElementById(`addToCart${id}`);
-		button.innerHTML = `Added (${quantity})`;
+		button.innerHTML = `Added (${data})`;
 	});
 }
 
@@ -107,6 +111,5 @@ function getCartId() {
 	request.send();
 	request.addEventListener("load", () => {
 		cartId = JSON.parse(request.responseText);
-		console.log(cartId);
 	});
 }

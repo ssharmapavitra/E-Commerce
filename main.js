@@ -270,14 +270,23 @@ app.get("/getProducts/:indexLoad", async (req, res) => {
 
 //Add to Cart
 app.get("/addToCart/:id/:cartId", checkAuth, async (req, res) => {
+	if (!req.session.is_logged_in) {
+		res.send("[]");
+		return;
+	}
 	let id = req.params.id;
 	let cartId = req.params.cartId;
 	let data = await prodb.addToCart(id, cartId);
+	data = JSON.stringify(data);
 	res.send(data);
 });
 
 //Get cart id
-app.get("/getCartId", checkAuth, async (req, res) => {
+app.get("/getCartId", async (req, res) => {
+	if (!req.session.is_logged_in) {
+		res.send("[]");
+		return;
+	}
 	let username = req.session.username;
 	let data = await prodb.getCartId(username);
 	data = JSON.stringify(data);
@@ -286,9 +295,8 @@ app.get("/getCartId", checkAuth, async (req, res) => {
 
 //My Cart
 app.get("/mycart", checkAuth, async (req, res) => {
-	let username = req.session.username;
-	let data = await prodb.getCart(username);
-	res.render("mycart", { data: data, name: req.session.name, login: true });
+	const items = await prodb.getCartItems(req.session.username);
+	res.render("mycart", { items: items, name: req.session.name, login: true });
 });
 
 app.get("*", (req, res) => {

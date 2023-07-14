@@ -27,13 +27,45 @@ async function getProductsFromDatabase(indexLoad) {
 	return result[0];
 }
 
+//get product from id
+async function getProductFromId(id) {
+	const result = await prod_pool.query(`SELECT * FROM products WHERE id = ?`, [
+		id,
+	]);
+	return result[0];
+}
+
 // add to cart
 async function addToCart(product_id, cart_id) {
-	const result = await prod_pool.query(
-		`INSERT INTO cart_items (cart_id, product_id, quantity) VALUES (?, ?, 1)`,
-		[cart_id, product_id]
-	);
-	return result[0];
+	try {
+		const product = await getProductFromId(product_id);
+		let price = product[0].price;
+
+		// Check if the product already exists in the cart
+		const existingCartItem = await prod_pool.query(
+			`SELECT * FROM cart_items WHERE cart_id = ? AND product_id = ?`,
+			[cart_id, product_id]
+		);
+
+		if (existingCartItem[0].length > 0) {
+			// If the product exists, update the quantity by incrementing it by 1
+			const updatedQuantity = existingCartItem[0][0].quantity + 1;
+			const result = await prod_pool.query(
+				`UPDATE cart_items SET quantity = ? WHERE cart_id = ? AND product_id = ?`,
+				[updatedQuantity, cart_id, product_id]
+			);
+			return updatedQuantity;
+		} else {
+			// If the product doesn't exist, insert a new cart item with quantity 1
+			const result = await prod_pool.query(
+				`INSERT INTO cart_items (cart_id, product_id, quantity, price) VALUES (?, ?, 1, ?)`,
+				[cart_id, product_id, price]
+			);
+			return 1;
+		}
+	} catch (error) {
+		console.log(error);
+	}
 }
 
 //increase quantity
@@ -60,11 +92,27 @@ async function getCartId(username) {
 	}
 }
 
+//get cart items
+async function getCartItems(username) {
+	try {
+		const cart_id = await getCartId(username);
+		const result = await prod_pool.query(
+			`SELECT * FROM cart_items WHERE cart_id = ?`,
+			[cart_id]
+		);
+		console.log("items", result[0]); // array of cart items
+		return result[0];
+	} catch (error) {
+		console.log(error);
+	}
+}
+
 module.exports = {
 	getProductsFromDatabase,
 	getCartId,
 	addToCart,
 	updateQuantity,
+	getCartItems,
 };
 
 /*
