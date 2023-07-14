@@ -13,10 +13,8 @@ const prod_pool = mysql
 
 //get products
 async function getProductsFromDatabase(indexLoad) {
-	// Define the starting and ending index
 	let j = 5; //size of array;
 	let i = (indexLoad - 1) * j;
-
 	const result = await prod_pool.query(
 		`
           SELECT *
@@ -29,7 +27,45 @@ async function getProductsFromDatabase(indexLoad) {
 	return result[0];
 }
 
-module.exports = { getProductsFromDatabase };
+// add to cart
+async function addToCart(product_id, cart_id) {
+	const result = await prod_pool.query(
+		`INSERT INTO cart_items (cart_id, product_id, quantity) VALUES (?, ?, 1)`,
+		[cart_id, product_id]
+	);
+	return result[0];
+}
+
+//increase quantity
+async function updateQuantity(product_id, cart_id, quantityToAdd) {
+	const result = await prod_pool.query(
+		`UPDATE cart_items SET quantity = quantity + ? WHERE cart_id = ? AND product_id = ?`,
+		[quantityToAdd, cart_id, product_id]
+	);
+	return result[0];
+}
+
+//get cart id
+async function getCartId(username) {
+	try {
+		console.log(username);
+		const result = await prod_pool.query(
+			`SELECT cart_id FROM cart WHERE user_id = (SELECT user_id FROM users WHERE username = ?)`,
+			[username]
+		);
+		console.log(result[0][0].cart_id);
+		return result[0][0].cart_id;
+	} catch (error) {
+		console.log(error);
+	}
+}
+
+module.exports = {
+	getProductsFromDatabase,
+	getCartId,
+	addToCart,
+	updateQuantity,
+};
 
 /*
 

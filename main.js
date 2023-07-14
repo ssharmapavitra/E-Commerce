@@ -268,6 +268,29 @@ app.get("/getProducts/:indexLoad", async (req, res) => {
 	res.send(data);
 });
 
+//Add to Cart
+app.get("/addToCart/:id/:cartId", checkAuth, async (req, res) => {
+	let id = req.params.id;
+	let cartId = req.params.cartId;
+	let data = await prodb.addToCart(id, cartId);
+	res.send(data);
+});
+
+//Get cart id
+app.get("/getCartId", checkAuth, async (req, res) => {
+	let username = req.session.username;
+	let data = await prodb.getCartId(username);
+	data = JSON.stringify(data);
+	res.send(data);
+});
+
+//My Cart
+app.get("/mycart", checkAuth, async (req, res) => {
+	let username = req.session.username;
+	let data = await prodb.getCart(username);
+	res.render("mycart", { data: data, name: req.session.name, login: true });
+});
+
 app.get("*", (req, res) => {
 	res.sendStatus(404);
 });

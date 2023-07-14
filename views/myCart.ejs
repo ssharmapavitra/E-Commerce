@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>My Cart | Maayaa Baazaar</title>
+	</head>
+	<body>
+
+        <header>
+            <%-include ("./components/headers/navbar",{login : login, name:name}) %>
+        </header>
+
+        <h1>My Cart</h1>
+        <h2>Items in Cart</h2>
+        <table>
+            <tr>
+                <th>Item Name</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Remove</th>
+            </tr>
+                <% for(var i=0; i<items.length; i++) { %>
+            <tr>
+                <td><%= items[i].name %></td>
+                <td><%= items[i].quantity %></td>
+                <td><%= items[i].price %></td>
+                <td><a href="/removeFromCart/<%= items[i].id %>">Remove</a></td>
+            </tr>
+                <% } %>
+        </table>
+        <h2>Total Price: <%= totalPrice %></h2>
+        <a href="/checkout">Checkout</a>
+
+        <h2>Items in Wishlist</h2>
+
+
+    </body>
+</html>

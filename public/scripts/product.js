@@ -1,9 +1,11 @@
 //AJAX request to get products
 let indexLoad = 1;
 const products_list = [];
+let cartId = 0;
 
 function onLoad() {
 	getProducts();
+	getCartId();
 }
 
 //AJAX request to get products
@@ -29,7 +31,7 @@ function addProducts(products) {
         <div class="product-info">
             <h3>${product.name}</h3>
 			<button onclick="viewProduct('${product.id}')">View</button>
-            <button onclick="addToCart('${product.id}')">Add to Cart</button>
+            <button id=addToCart${product.id} onclick="addToCart('${product.id}')">Add to Cart</button>
         </div>
         `;
 		productContainer.appendChild(div);
@@ -80,4 +82,31 @@ function loadMore() {
 	}
 
 	getProducts();
+}
+
+//Add product to cart
+function addToCart(id) {
+	console.log(id);
+	let request = new XMLHttpRequest();
+	console.log(`/addToCart/${id}/${cartId}}`);
+	request.open("GET", `/addToCart/${id}/${cartId}}`);
+	request.send();
+	request.addEventListener("load", () => {
+		//Change button text to added and quantity to 1
+		let data = JSON.parse(request.responseText);
+		let quantity = data.quantity;
+		let button = document.getElementById(`addToCart${id}`);
+		button.innerHTML = `Added (${quantity})`;
+	});
+}
+
+//Get cart id
+function getCartId() {
+	let request = new XMLHttpRequest();
+	request.open("GET", "/getCartId");
+	request.send();
+	request.addEventListener("load", () => {
+		cartId = JSON.parse(request.responseText);
+		console.log(cartId);
+	});
 }

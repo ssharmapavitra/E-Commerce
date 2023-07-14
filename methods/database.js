@@ -102,4 +102,10 @@ name varchar(45)
 mobile varchar(10) 
 is_verified tinyint 
 token varchar(45)
+
+
+TRIGGER
+CREATE DEFINER=`root`@`localhost` TRIGGER `users_AFTER_INSERT` AFTER INSERT ON `users` FOR EACH ROW BEGIN
+	INSERT INTO cart (user_id) VALUES(NEW.user_id);
+END
 */
