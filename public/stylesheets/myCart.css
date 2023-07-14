@@ -23,3 +23,9 @@
 	align-items: center;
 	width: 80%;
 }
+.update-value {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: center;
+}

@@ -13,26 +13,35 @@ const prod_pool = mysql
 
 //get products
 async function getProductsFromDatabase(indexLoad) {
-	let j = 5; //size of array;
-	let i = (indexLoad - 1) * j;
-	const result = await prod_pool.query(
-		`
+	try {
+		let j = 5; //size of array;
+		let i = (indexLoad - 1) * j;
+		const result = await prod_pool.query(
+			`
           SELECT *
           FROM products
           LIMIT ?
           OFFSET ?
         `,
-		[j, i]
-	);
-	return result[0];
+			[j, i]
+		);
+		return result[0];
+	} catch (error) {
+		console.log(error);
+	}
 }
 
 //get product from id
 async function getProductFromId(id) {
-	const result = await prod_pool.query(`SELECT * FROM products WHERE id = ?`, [
-		id,
-	]);
-	return result[0];
+	try {
+		const result = await prod_pool.query(
+			`SELECT * FROM products WHERE id = ?`,
+			[id]
+		);
+		return result[0];
+	} catch (error) {
+		console.log(error);
+	}
 }
 
 // add to cart
@@ -70,26 +79,29 @@ async function addToCart(product_id, cart_id) {
 
 //increase quantity
 async function updateQuantity(cart_item_id, quantityToAdd) {
-
-	// Check if the product should be removed from the cart
-	if (quantityToAdd == -1) {
-		const prod = await prod_pool.query(
-			`SELECT * FROM cart_items WHERE cart_item_id = ?`,
-			[cart_item_id]
-		);
-		if (prod[0][0].quantity == 1) {
-			const result = await prod_pool.query(
-				`DELETE FROM cart_items WHERE cart_item_id = ?`,
+	try {
+		// Check if the product should be removed from the cart
+		if (quantityToAdd == -1) {
+			const prod = await prod_pool.query(
+				`SELECT * FROM cart_items WHERE cart_item_id = ?`,
 				[cart_item_id]
 			);
-			return result[0];
+			if (prod[0][0].quantity == 1) {
+				const result = await prod_pool.query(
+					`DELETE FROM cart_items WHERE cart_item_id = ?`,
+					[cart_item_id]
+				);
+				return result[0];
+			}
 		}
+		const result = await prod_pool.query(
+			`UPDATE cart_items SET quantity = quantity + ? WHERE cart_item_id = ?`,
+			[quantityToAdd, cart_item_id]
+		);
+		return result[0];
+	} catch (error) {
+		console.log(error);
 	}
-	const result = await prod_pool.query(
-		`UPDATE cart_items SET quantity = quantity + ? WHERE cart_item_id = ?`,
-		[quantityToAdd, cart_item_id]
-	);
-	return result[0];
 }
 
 //get cart id

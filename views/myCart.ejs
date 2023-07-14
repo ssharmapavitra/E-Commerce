@@ -13,18 +13,18 @@
         </header>
         <% let total = 0; %>
 
-        <h1>My Cart</h1>
+        <% if(items.length>0){ %>
         <h2>Items in Cart</h2>
         <div class="cart-container">
             <% for(var i=0; i<items.length; i++) { %>
-                <div class="product-card">
+                <div id="card<%=items[i].cart_item_id %>" class="product-card">
                     <div class="product-img">
                         <img src="<%= items[i].thumbnailPath%>" alt="product-image" />
                     </div>
                     <p class="prod-name"><%= items[i].name %></p>
                     <div class="update-value">
                         <button class="update-btn" onclick="updateQuantity(<%= items[i].cart_item_id %>, -1)">-</button>
-                        <span><p id = price<%=items[i].cart_item_id%>><%= items[i].price %></p> x </span>
+                        <span><span id = price<%=items[i].cart_item_id%>><%= items[i].price %></span> x </span>
                         <span id =quantity<%=items[i].cart_item_id%>> <%= items[i].quantity %> </span>
                         <button class="update-btn" onclick="updateQuantity(<%= items[i].cart_item_id %>, 1)">+</button>
                     </div>
@@ -33,10 +33,15 @@
                 </div>
             <% } %>
         </div>
-        <h2>Total Price: <p id="total-price"><%= total %></h2></p>
+        <h2>Total Price: <p id="total-price"><%= total.toFixed(2) %></h2></p>
         <a href="/checkout">Checkout</a>
 
-        <h2>Items in Wishlist</h2>
+        <% } else { %>
+            <h2>Cart is Empty</h2>
+        <% } %>
+
+
+        <h4>Items in Wishlist</h4>
 
         <script src="/scripts/myCart.js"></script>
     </body>
