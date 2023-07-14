@@ -11,31 +11,33 @@
         <header>
             <%-include ("./components/headers/navbar",{login : login, name:name}) %>
         </header>
+        <% let total = 0; %>
 
         <h1>My Cart</h1>
         <h2>Items in Cart</h2>
-        <table>
-            <tr>
-                <th>Item Name</th>
-                <th>Quantity</th>
-                <th>Price</th>
-                <th>Remove</th>
-            </tr>
-                <% for(var i=0; i<items.length; i++) { %>
-            <tr>
-                <td><%= items[i].product_name %></td>
-                <td><%= items[i].quantity %></td>
-                <td><%= items[i].price %></td>
-                <td><a href="/removeFromCart/<%= items[i].id %>">Remove</a></td>
-            </tr>
-                <% } %>
-        </table>
-        <% let totalPrice = 500 %>
-        <h2>Total Price: <%= totalPrice %></h2>
+        <div class="cart-container">
+            <% for(var i=0; i<items.length; i++) { %>
+                <div class="product-card">
+                    <div class="product-img">
+                        <img src="<%= items[i].thumbnailPath%>" alt="product-image" />
+                    </div>
+                    <p class="prod-name"><%= items[i].name %></p>
+                    <div class="update-value">
+                        <button class="update-btn" onclick="updateQuantity(<%= items[i].cart_item_id %>, -1)">-</button>
+                        <span><p id = price<%=items[i].cart_item_id%>><%= items[i].price %></p> x </span>
+                        <span id =quantity<%=items[i].cart_item_id%>> <%= items[i].quantity %> </span>
+                        <button class="update-btn" onclick="updateQuantity(<%= items[i].cart_item_id %>, 1)">+</button>
+                    </div>
+                    <% total += items[i].price * items[i].quantity %>
+                    <span id="item-total-price<%=items[i].cart_item_id%>"><%= items[i].price * items[i].quantity  %></span>
+                </div>
+            <% } %>
+        </div>
+        <h2>Total Price: <p id="total-price"><%= total %></h2></p>
         <a href="/checkout">Checkout</a>
 
         <h2>Items in Wishlist</h2>
 
-
+        <script src="/scripts/myCart.js"></script>
     </body>
 </html>

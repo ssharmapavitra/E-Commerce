@@ -25,6 +25,12 @@ app.use(
 	})
 );
 
+/* Testing 
+	req.session.is_logged_in = true;
+	req.session.name = "Pavitra Sharma";
+	req.session.username = "ssharmapavitra@gmail.com";
+*/
+
 /* ---------------------------------Routing ------------------------------ */
 
 app.get("/", (req, res) => {
@@ -37,6 +43,7 @@ app.get("/", (req, res) => {
 app
 	.route("/login")
 	.get((req, res) => {
+		if (req.session.is_logged_in) res.redirect("/home");
 		res.render("login", { error: "" });
 	})
 	.post(async (req, res) => {
@@ -293,10 +300,25 @@ app.get("/getCartId", async (req, res) => {
 	res.send(data);
 });
 
-//My Cart
-app.get("/mycart", checkAuth, async (req, res) => {
-	const items = await prodb.getCartItems(req.session.username);
-	res.render("mycart", { items: items, name: req.session.name, login: true });
+//Get My Cart
+app.get(
+	"/mycart",
+	/*checkAuth, */ async (req, res) => {
+		req.session.is_logged_in = true;
+		req.session.name = "Pavitra Sharma";
+		req.session.username = "ssharmapavitra@gmail.com";
+		const items = await prodb.getCartItems(req.session.username);
+		res.render("mycart", { items: items, name: req.session.name, login: true });
+	}
+);
+
+//Update Quantity in Cart
+app.get("/updateQuantity/:id/:quantity", checkAuth, async (req, res) => {
+	let id = req.params.id;
+	let quantity = req.params.quantity;
+	let data = await prodb.updateQuantity(id, quantity);
+	data = JSON.stringify(data);
+	res.send(data);
 });
 
 app.get("*", (req, res) => {
