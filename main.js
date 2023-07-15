@@ -7,6 +7,9 @@ const sendEmail = require("./methods/sendEmail");
 const db = require("./methods/database");
 const prodb = require("./methods/productDatabase");
 
+//Routers
+const initEntities = require("./entities");
+
 const app = express();
 const port = 3000;
 
@@ -49,7 +52,6 @@ app
 	.post(async (req, res) => {
 		let obj = req.body;
 		let user = await db.getUser(obj.username);
-		// console.log(user);
 		//check if user exist
 		if (!user) {
 			res.render("login", { error: "User not found" });
@@ -320,6 +322,8 @@ app.get("/updateQuantity/:id/:quantity", checkAuth, async (req, res) => {
 	data = JSON.stringify(data);
 	res.send(data);
 });
+
+initEntities(app);
 
 app.get("*", (req, res) => {
 	res.sendStatus(404);

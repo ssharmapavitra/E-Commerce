@@ -3,14 +3,23 @@
 }
 .box-container {
 	display: flex;
+	flex-direction: column;
 	align-items: center;
 	justify-content: center;
 	height: 100vh;
 	/* background-color: aquamarine; */
 }
+.box-container h1 {
+	color: rgb(66, 49, 49);
+}
 .box {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
 	height: 60vh;
-	/* background-color: blueviolet; */
+	background-color: rgb(255, 247, 198);
+	width: 40%;
 }
 form {
 	display: flex;
@@ -33,11 +42,12 @@ input {
 	text-align: center;
 }
 .btn {
-	padding: 5px;
+	padding: 8px 20px;
 	background-color: rgb(255, 191, 0);
 	border: none;
-	border-radius: 3px;
+	border-radius: 8px;
 	cursor: pointer;
+	width: 50%;
 }
 .details {
 	display: flex;

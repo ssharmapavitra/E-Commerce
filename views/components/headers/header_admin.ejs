@@ -1,0 +1,43 @@
+<style>
+	* {
+		margin: 0px;
+		box-sizing: border-box;
+	}
+	.header {
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: center;
+		flex-wrap: wrap;
+		padding: 3px;
+		background-color: antiquewhite;
+	}
+	.account {
+		display: flex;
+		flex-direction: row;
+		justify-content: center;
+		align-items: center;
+		font-weight: 600;
+	}
+</style>
+<div class="header">
+	<p class="title">Maayaa Baazaar</p>
+
+	<% if (login) { %>
+	<div class="account">
+		Hello <%= name %>
+		<button class="btn">
+			<a href="admin/logout">Logout</a>
+		</button>
+	</div>
+	<!-- <% } else { %>
+	<div class="buttonBar">
+		<button class="btn">
+			<a href="/login">Login</a>
+		</button>
+		<button class="btn">
+			<a href="/signup">SignUp</a>
+		</button>
+	</div>
+	<% } %> -->
+</div>

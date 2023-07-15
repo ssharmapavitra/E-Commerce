@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Login | Maayaa Baazaar</title>
+		<link rel="stylesheet" href="/stylesheets/logSign.css" />
+	</head>
+	<body>
+		<div class="box-container">
+			<div class="box">
+				<h2>Admin Login</h2>
+				<form method="post" action="/admin/login">
+					<input
+						id="username"
+						type="text"
+						name="username"
+						placeholder="Enter Your Username"
+						required
+					/>
+					<input
+						type="password"
+						name="password"
+						placeholder="Enter password"
+						required
+					/>
+					<input class="btn" type="submit" value="Login" />
+				</form>
+				<!-- <p class="alter">
+					Create New Account <a href="admin/signup">SignUp</a>
+				</p>
+				<p class="alter">
+					Trouble Signing in <a href="/forgotpassword">Forgot Password</a>
+				</p> -->
+				<div class="error"><% if (error) { %> <%= error %> <% } %></div>
+			</div>
+		</div>
+	</body>
+</html>

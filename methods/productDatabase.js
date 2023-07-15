@@ -134,12 +134,88 @@ async function getCartItems(username) {
 	}
 }
 
+//Add new Product
+async function addNewProduct(obj) {
+	try {
+		const result = await prod_pool.query(
+			`INSERT INTO products (name, description, rating, thumbnailPath, imagePath, price, category_id) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+			[
+				obj.name,
+				obj.description,
+				obj.rating,
+				obj.thumbnailPath,
+				obj.imagePath,
+				obj.price,
+				obj.category_id,
+			]
+		);
+		return result[0];
+	} catch (error) {
+		console.log(error);
+	}
+}
+
+//Update Product
+async function updateProduct(obj, image) {
+	try {
+		let result;
+		//if image is not updated
+		if (!image) {
+			result = await prod_pool.query(
+				`UPDATE products SET name = ?, description = ?, rating = ?, price = ?, category_id = ? WHERE id = ?`,
+				[
+					obj.name,
+					obj.description,
+					obj.rating,
+					obj.price,
+					obj.category_id,
+					obj.id,
+				]
+			);
+		}
+		//if image is updated
+		else {
+			result = await prod_pool.query(
+				`UPDATE products SET name = ?, description = ?, rating = ?, thumbnailPath = ?, imagePath = ?, price = ?, category_id = ? WHERE id = ?`,
+				[
+					obj.name,
+					obj.description,
+					obj.rating,
+					obj.thumbnailPath,
+					obj.imagePath,
+					obj.price,
+					obj.category_id,
+					obj.id,
+				]
+			);
+		}
+		return result[0];
+	} catch (error) {
+		console.log(error);
+	}
+}
+
+//Delete Product
+async function deleteProduct(id) {
+	try {
+		const result = await prod_pool.query(`DELETE FROM products WHERE id = ?`, [
+			id,
+		]);
+		return result[0];
+	} catch (error) {
+		console.log(error);
+	}
+}
+
 module.exports = {
 	getProductsFromDatabase,
 	getCartId,
 	addToCart,
 	updateQuantity,
 	getCartItems,
+	addNewProduct,
+	updateProduct,
+	deleteProduct,
 };
 
 /*

@@ -1,3 +1,15 @@
+:root {
+	--primary-color: #ccd5ae;
+	--secondary-color: #e9edc9;
+	--tertiary-color: #fefae0;
+	--quaternary-color: #f5e6ca;
+	--quinary-color: #f4c29f;
+	--senary-color: #e6b89c;
+	--septenary-color: #faedcd;
+	--octonary-color: #f5cda7;
+	--nonary-color: #f4a688;
+}
+
 /* Utility Classes */
 .btn {
 	padding: 5px;

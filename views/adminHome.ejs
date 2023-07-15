@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Admin | Maayaa Baazaar</title>
+		<link rel="stylesheet" href="/stylesheets/adminHome.css" />
+	</head>
+	<body>
+		<div class="body">
+			<header>
+				<%-include ("./components/headers/header_admin",{login : login,
+				name:name}) %>
+			</header>
+
+			<div class="controls">
+				<div class="addProduct">
+					<button class="btn addProductBtn" onclick="AddNewProduct()">
+						Add New Product
+					</button>
+				</div>
+			</div>
+
+			<div id="productForm" class="productForm"></div>
+			<div id="display" class="display">
+				<body onload="onLoad()">
+					<div id="popup" class="popup"></div>
+					<div class="card_container" id="product-container"></div>
+
+					<button id="load-more" onclick="loadMore()">Load More</button>
+					<script src="/scripts/adminHome.js"></script>
+				</body>
+			</div>
+		</div>
+	</body>
+</html>
+
+<!-- Schema for Product
+
+id int UN AI PK 
+name varchar(45) 
+description varchar(200) 
+rating int 
+thumbnailPath varchar(45) 
+imagePath varchar(45) 
+price double 
+category_id int -->

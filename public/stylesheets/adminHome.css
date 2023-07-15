@@ -1,0 +1,80 @@
+.productForm {
+	display: none;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	padding: 15px;
+	background-color: royalblue;
+}
+.productForm form {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: start;
+	padding: 15px;
+	background-color: salmon;
+}
+.productForm form input {
+	display: flex;
+	align-items: start;
+	margin: 1rem;
+	padding: 0.5rem 2rem;
+	border: none;
+	border-radius: 3px;
+}
+.display {
+	/* display: none; */
+}
+.card_container {
+	display: grid;
+	grid-template-columns: repeat(5, auto);
+	margin-left: 3rem;
+}
+.popup {
+	/* background-color: brown; */
+	position: fixed;
+	display: none;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+	margin: 0 auto;
+	height: 80vh;
+	width: 80vw;
+	z-index: 1;
+}
+.product-image {
+	width: 200px;
+	height: 200px;
+}
+
+/* Utility Classes */
+.btn {
+	padding: 5px;
+	background-color: rgb(255, 191, 0);
+	border: none;
+	border-radius: 3px;
+	margin: 0.5rem;
+	cursor: pointer;
+}
+.btn a {
+	text-decoration: none;
+}
+
+/* 
+	popup.innerHTML = `
+	<div class="popup-content">
+		<div class="popup-header">
+			<h2>${product.name}</h2>
+			<button onclick="closePopup()">X</button>
+		</div>
+		<div class="popup-body">
+			<img src="${product.imagePath}" alt="product" />
+			<div class="popup-info">
+				<p>${product.description}</p>
+				<p>Price: ${product.price}</p>
+				<button onclick="addToCart('${product.id}')">Add to Cart</button>
+			</div>
+		</div>
+	</div>
+	`;
+*/

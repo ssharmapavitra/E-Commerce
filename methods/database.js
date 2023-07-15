@@ -52,15 +52,15 @@ async function setPassword(username, password) {
 
 //get existing User
 async function getUser(username) {
-	try{
-	const result = await pool.query(
-		`
+	try {
+		const result = await pool.query(
+			`
     SELECT * FROM users WHERE username=?
     `,
-		[username]
-	);
-	return result[0][0];
-	}catch(error){
+			[username]
+		);
+		return result[0][0];
+	} catch (error) {
 		console.log(error);
 	}
 }
