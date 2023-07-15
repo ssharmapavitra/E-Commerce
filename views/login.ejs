@@ -12,12 +12,13 @@
 				<form method="post" action="/login">
 					<input
 						id="username"
-						type="text"
+						type="email"
 						name="username"
 						placeholder="Enter Your Username"
 						required
 					/>
 					<input
+						id="password"
 						type="password"
 						name="password"
 						placeholder="Enter password"
@@ -29,8 +30,11 @@
 				<p class="alter">
 					Trouble Signing in <a href="/forgotpassword">Forgot Password</a>
 				</p>
-				<div class="error"><% if (error) { %> <%= error %> <% } %></div>
+				<div id="error" class="error">
+					<% if (error) { %> <%= error %> <% } %>
+				</div>
 			</div>
 		</div>
+		<script src="/scripts/login.js"></script>
 	</body>
 </html>

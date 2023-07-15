@@ -9,6 +9,7 @@ const prodb = require("./methods/productDatabase");
 
 //Routers
 const initEntities = require("./entities");
+const { log } = require("console");
 
 const app = express();
 const port = 3000;
@@ -47,9 +48,17 @@ app
 	.route("/login")
 	.get((req, res) => {
 		if (req.session.is_logged_in) res.redirect("/home");
-		res.render("login", { error: "" });
+		else {
+			res.render("login", { error: "" });
+		}
 	})
 	.post(async (req, res) => {
+		//Check for empty fields
+		if (!req.body.username.trim() || !req.body.password.trim()) {
+			res.render("login", { error: "Please fill all the details" });
+			return;
+		}
+
 		let obj = req.body;
 		let user = await db.getUser(obj.username);
 		//check if user exist
@@ -86,6 +95,17 @@ app
 	})
 	.post(async (req, res) => {
 		let obj = req.body;
+		//check user details
+		if (
+			!obj.name.trim() ||
+			!obj.username.trim() ||
+			!obj.password.trim() ||
+			!obj.mobile.trim()
+		) {
+			res.render("signup", { error: "Please fill all the details" });
+			return;
+		}
+
 		//Add Token
 		obj.token = Date.now(); //Change this to uuid or something else
 		obj.is_verified = false;
@@ -303,16 +323,13 @@ app.get("/getCartId", async (req, res) => {
 });
 
 //Get My Cart
-app.get(
-	"/mycart",
-	/*checkAuth, */ async (req, res) => {
-		req.session.is_logged_in = true;
-		req.session.name = "Pavitra Sharma";
-		req.session.username = "ssharmapavitra@gmail.com";
-		const items = await prodb.getCartItems(req.session.username);
-		res.render("mycart", { items: items, name: req.session.name, login: true });
-	}
-);
+app.get("/mycart", checkAuth, async (req, res) => {
+	// req.session.is_logged_in = true;
+	// req.session.name = "Pavitra Sharma";
+	// req.session.username = "ssharmapavitra@gmail.com";
+	const items = await prodb.getCartItems(req.session.username);
+	res.render("mycart", { items: items, name: req.session.name, login: true });
+});
 
 //Update Quantity in Cart
 app.get("/updateQuantity/:id/:quantity", checkAuth, async (req, res) => {

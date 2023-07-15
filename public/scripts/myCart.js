@@ -22,19 +22,25 @@ function updateQuantity(cart_item_id, quantity) {
 
 //update values when quantity changes
 function quantityChange(cart_item_id, quantity) {
+	console.log(quantity, typeof quantity);
 	quantity = parseInt(quantity);
-	//update total price and quantity
+	console.log(quantity, typeof quantity);
+
+	//get all the required elements
 	let totalPricePara = document.getElementById("total-price");
 	let quantityPara = document.getElementById(`quantity${cart_item_id}`);
 	let pricePara = document.getElementById(`price${cart_item_id}`);
 	let itemTotalPrice = document.getElementById(
 		`item-total-price${cart_item_id}`
 	);
+
+	//get the values
 	let priceValue = parseFloat(pricePara.innerHTML);
 	let quantityValue = parseFloat(quantityPara.innerHTML);
 	let totalPrice = parseFloat(totalPricePara.innerHTML);
 	let itemTotalPriceValue = parseFloat(itemTotalPrice.innerHTML);
 
+	//update the values
 	totalPrice = totalPrice + priceValue * quantity;
 	itemTotalPriceValue += priceValue * quantity;
 	quantityValue += quantity;
@@ -46,5 +52,5 @@ function quantityChange(cart_item_id, quantity) {
 
 	totalPricePara.innerHTML = totalPrice.toFixed(2);
 	itemTotalPrice.innerHTML = itemTotalPriceValue.toFixed(2);
-	quantityPara.innerHTML = quantityValue + quantity;
+	quantityPara.innerHTML = quantityValue;
 }
